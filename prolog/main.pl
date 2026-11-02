@@ -58,3 +58,44 @@ llegadas(Ciudad) :-
     format("Llegadas a ~w:~n", [Ciudad]),
     forall(vuelo(O, Ciudad, S, L, P, Id, _),
            mostrar_vuelo(Id, O, Ciudad, S, L, P)).
+
+% lee una linea del teclado
+leer(Texto, Valor) :-
+    write(Texto), flush_output,
+    read_line_to_string(user_input, Linea),
+    normalize_space(string(Valor), Linea).
+
+% predicado principal
+iniciar :-
+    cargar_vuelos("vuelos.txt"),
+    writeln('Vuelos cargados.'),
+    menu.
+
+menu :-
+    nl,
+    writeln('===== LogiExpress ====='),
+    writeln('1. Salidas de una ciudad'),
+    writeln('2. Llegadas a una ciudad'),
+    writeln('7. Cambiar TMC'),
+    writeln('0. Salir'),
+    leer('Opcion: ', Op),
+    opcion(Op).
+
+opcion("0") :- !, writeln('Hasta luego.').
+opcion(Op) :-
+    (   catch(ejecutar(Op), _, fail)
+    ->  true
+    ;   writeln('Opcion o dato no valido.')
+    ),
+    menu.
+
+ejecutar("1") :- leer('Ciudad: ', C), salidas(C).
+ejecutar("2") :- leer('Ciudad: ', C), llegadas(C).
+ejecutar("7") :-
+    tmc(T),
+    format("TMC actual: ~w min~n", [T]),
+    leer('Nuevo TMC: ', S),
+    number_string(N, S),
+    retractall(tmc(_)),
+    assertz(tmc(N)),
+    format("TMC cambiado a ~w min~n", [N]).
