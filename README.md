@@ -16,10 +16,23 @@ Ejecutar en el terminal
 
 
 B - Programa de Prolog:
-NOTA: Se necesita tener Prolog instalado en el dispositivo o no compilará
+NOTA: Se necesita tener SWI-Prolog instalado en el dispositivo o no se podrá ejecutar
 
-Ejecutar en el terminal
-1.
+Ejecutar en el terminal desde la carpeta principal del proyecto
+1. swipl prolog/main.pl
+2. iniciar.
+
+Opciones del menú de Prolog:
+1. Salidas de una ciudad
+2. Llegadas a una ciudad
+3. Rutas válidas (con límite opcional de escalas)
+4. Ruta más barata
+5. Ruta más rápida
+6. Reporte ordenado por costo o por tiempo
+7. Cambiar el TMC
+0. Salir
+
+Las ciudades se escriben igual que en vuelos.txt (ej. Pto Ordaz) y los días como L, M, Mi, J, V, S o D.
 
 
 El TMC inicial es de 45 minutos y puede cambiarse desde el menú. El programa
