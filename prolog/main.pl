@@ -59,6 +59,9 @@ llegadas(Ciudad) :-
     forall(vuelo(O, Ciudad, S, L, P, Id, _),
            mostrar_vuelo(Id, O, Ciudad, S, L, P)).
 
+% carga el modulo de busqueda de rutas 
+:- ensure_loaded('rutas.pl').
+
 % lee una linea del teclado
 leer(Texto, Valor) :-
     write(Texto), flush_output,
@@ -76,6 +79,10 @@ menu :-
     writeln('===== LogiExpress ====='),
     writeln('1. Salidas de una ciudad'),
     writeln('2. Llegadas a una ciudad'),
+    writeln('3. Rutas validas'),
+    writeln('4. Ruta mas barata'),
+    writeln('5. Ruta mas rapida'),
+    writeln('6. Reporte ordenado'),
     writeln('7. Cambiar TMC'),
     writeln('0. Salir'),
     leer('Opcion: ', Op),
@@ -91,6 +98,19 @@ opcion(Op) :-
 
 ejecutar("1") :- leer('Ciudad: ', C), salidas(C).
 ejecutar("2") :- leer('Ciudad: ', C), llegadas(C).
+ejecutar("3") :-
+    pedir_datos(O, D, Dia),
+    leer('Max escalas (Enter = sin limite): ', KS),
+    escalas(KS, K),
+    reporte(costo, O, D, Dia, K).
+ejecutar("4") :- pedir_datos(O, D, Dia), mostrar_mejor(costo, O, D, Dia).
+ejecutar("5") :- pedir_datos(O, D, Dia), mostrar_mejor(tiempo, O, D, Dia).
+ejecutar("6") :-
+    pedir_datos(O, D, Dia),
+    leer('Ordenar por (costo/tiempo): ', CS),
+    atom_string(Crit, CS),
+    member(Crit, [costo, tiempo]),
+    reporte(Crit, O, D, Dia, 100).
 ejecutar("7") :-
     tmc(T),
     format("TMC actual: ~w min~n", [T]),
@@ -99,3 +119,21 @@ ejecutar("7") :-
     retractall(tmc(_)),
     assertz(tmc(N)),
     format("TMC cambiado a ~w min~n", [N]).
+
+% pide origen, destino y dia
+pedir_datos(O, D, Dia) :-
+    leer('Origen: ', O),
+    leer('Destino: ', D),
+    leer('Dia (L, M, Mi, J, V, S, D): ', Dia).
+
+% sin numero = sin limite de escalas
+escalas("", 100) :- !.
+escalas(S, K) :- number_string(K, S).
+
+% muestra la mejor ruta o avisa si no hay
+mostrar_mejor(Crit, O, D, Dia) :-
+    (   mejor_ruta(Crit, O, D, Dia, Ruta, Valor)
+    ->  format("Mejor ruta por ~w (~w):~n", [Crit, Valor]),
+        mostrar_vuelos(Ruta)
+    ;   writeln('No hay rutas para ese dia.')
+    ).
